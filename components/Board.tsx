@@ -8,12 +8,14 @@ import Column from "./Column";
 type Props = {};
 
 export default function Board({}: Props) {
-  const [board, getBoard, setBoardState] = useBoardStore((state) => [
-    state.board,
-    state.getBoard,
-    state.setBoardState,
-  ]);
-  // console.log("board.tsx", board.columns);
+  const [board, getBoard, setBoardState, updateTodoInDB] = useBoardStore(
+    (state) => [
+      state.board,
+      state.getBoard,
+      state.setBoardState,
+      state.updateTodoInDB,
+    ]
+  );
 
   useEffect(() => {
     getBoard();
@@ -43,6 +45,7 @@ export default function Board({}: Props) {
     };
 
     if (!startCol || !finshCol) return;
+    if (source.index === destination.index && startCol === finshCol) return;
 
     const newTodos = startCol.todos;
     const [todoMoved] = newTodos.splice(source.index, 1);
@@ -66,7 +69,8 @@ export default function Board({}: Props) {
       newColumns.set(startCol.id, newCol);
       newColumns.set(finshCol.id, { id: finshCol.id, todos: finishTodos });
 
-      // update in bd
+      // update in DB
+      updateTodoInDB(todoMoved, finshCol.id);
       setBoardState({ ...board, columns: newColumns });
     }
   };
